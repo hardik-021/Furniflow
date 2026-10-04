@@ -92,15 +92,9 @@ Furniflow/
 
 ---
 
-## 📸 Screenshots
-
-> *(Add screenshots of your project here)*
-
----
-
 ## 👨‍💻 Author
 
-**Hardik** — [GitHub Profile](https://github.com/YOUR_USERNAME)
+**Hardik** — [GitHub Profile](https://github.com/hardik-021)
 
 ---
 
