@@ -1,0 +1,342 @@
+import os
+import datetime
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+
+FILES = {
+    "customers": "customers.txt",
+    "rooms": "rooms.txt",
+    "bookings": "bookings.txt",
+    "invoices": "invoices.txt",
+    "revenue": "revenue.txt"
+}
+
+for file in FILES.values():
+    if not os.path.exists(file):
+        open(file, "w").close()
+class Customer:
+    def __init__(self, name, gender, email, mobile, id_type, id_no, username, password):
+        self.name = name
+        self.gender = gender
+        self.email = email
+        self.mobile = mobile
+        self.id_type = id_type
+        self.id_no = id_no
+        self.username = username
+        self.password = password
+
+    def to_file(self):
+        return f"{self.name},{self.gender},{self.email},{self.mobile},{self.id_type},{self.id_no},{self.username},{self.password}\n"
+
+
+class Room:
+    def __init__(self, number, rtype, ac, capacity, price, food, laundry, wifi, available=True):
+        self.number = number
+        self.rtype = rtype
+        self.ac = ac
+        self.capacity = capacity
+        self.price = price
+        self.food = food
+        self.laundry = laundry
+        self.wifi = wifi
+        self.available = available
+
+    def to_file(self):
+        return f"{self.number},{self.rtype},{self.ac},{self.capacity},{self.price},{self.food},{self.laundry},{self.wifi},{self.available}\n"
+ADMIN_USER = "admin"
+ADMIN_PASS = "admin123"
+
+def admin_login():
+    u = input("Admin Username: ")
+    p = input("Admin Password: ")
+    if u == ADMIN_USER and p == ADMIN_PASS:
+        print("✅ Admin Login Successful")
+        admin_menu()
+    else:
+        print("❌ Invalid Admin Credentials")
+
+
+def admin_menu():
+    while True:
+        print("\n--- ADMIN PANEL ---")
+        print("1. Add Room")
+        print("2. View Rooms")
+        print("3. View Customers")
+        print("4. View Bookings")
+        print("5. Logout")
+
+        ch = input("Enter choice: ")
+
+        if ch == "1":
+            add_room()
+        elif ch == "2":
+            view_rooms()
+        elif ch == "3":
+            view_customers()
+        elif ch == "4":
+            view_bookings()
+        elif ch == "5":
+            break
+def add_room():
+    try:
+        number = input("Room Number: ")
+        rtype = input("Room Type (Single/Double/Deluxe/Suite): ")
+        ac = input("AC (Yes/No): ")
+        capacity = int(input("Max Persons: "))
+        price = int(input("Price per day: "))
+        food = input("Food Facility (Yes/No): ")
+        laundry = input("Laundry Facility (Yes/No): ")
+        wifi = input("WiFi (Yes/No): ")
+
+        room = Room(number, rtype, ac, capacity, price, food, laundry, wifi)
+
+        with open(FILES["rooms"], "a") as f:
+            f.write(room.to_file())
+
+        print("✅ Room Added Successfully")
+
+    except ValueError:
+        print("❌ Invalid input")
+
+
+def view_rooms():
+    print("\n--- ROOM DETAILS ---\n")
+    with open(FILES["rooms"]) as f:
+        for r in f:
+            data = r.strip().split(",")
+
+            # Skip invalid/old records safely
+            if len(data) != 9:
+                continue
+
+            no, t, ac, cap, pr, fd, la, wi, av = data
+
+            print("Room Number     :", no)
+            print("Room Type       :", t)
+            print("AC / Non-AC     :", ac)
+            print("Capacity        :", cap, "Persons")
+            print("Price per Day   :", pr)
+            print("Food Facility   :", fd)
+            print("Laundry         :", la)
+            print("WiFi            :", wi)
+            print("Status          :", "Available" if av == "True" else "Booked")
+            print("-" * 30)
+
+def register_customer():
+    print("\n--- Customer Registration ---")
+    name = input("Full Name: ")
+    gender = input("Gender: ")
+    email = input("Email: ")
+    mobile = input("Mobile: ")
+    id_type = input("ID Type: ")
+    id_no = input("ID Number: ")
+    username = input("Username: ")
+    password = input("Password: ")
+
+    customer = Customer(name, gender, email, mobile, id_type, id_no, username, password)
+
+    with open(FILES["customers"], "a") as f:
+        f.write(customer.to_file())
+
+    print("✅ Registration Successful")
+
+
+def customer_login():
+    u = input("Username: ")
+    p = input("Password: ")
+
+    with open(FILES["customers"]) as f:
+        for line in f:
+            data = line.strip().split(",")
+            if data[6] == u and data[7] == p:
+                print("✅ Login Successful")
+                customer_menu(u)
+                return
+
+    print("❌ Invalid Login")
+
+def days_between(start, end):
+    s = datetime.datetime.strptime(start, "%Y-%m-%d")
+    e = datetime.datetime.strptime(end, "%Y-%m-%d")
+    return (e - s).days
+def customer_menu(username):
+    while True:
+        print("\n--- CUSTOMER MENU ---")
+        print("1. View Available Rooms")
+        print("2. Book Room")
+        print("3. Logout")
+
+        ch = input("Choice: ")
+
+        if ch == "1":
+            view_rooms()
+        elif ch == "2":
+            book_room(username)
+        elif ch == "3":
+            break
+
+
+def book_room(user):
+    persons = int(input("Number of persons: "))
+    start = input("Check-in Date (YYYY-MM-DD): ")
+    end = input("Check-out Date (YYYY-MM-DD): ")
+
+    days = days_between(start, end)
+    if days <= 0:
+        print("❌ Invalid dates")
+        return
+
+    updated = []
+    booked = False
+
+    with open(FILES["rooms"]) as f:
+        for r in f:
+            data = r.strip().split(",")
+
+            if len(data) != 9:
+                updated.append(r)
+                continue
+
+            no, t, ac, cap, pr, fd, la, wi, av = data
+
+            if av == "True" and int(cap) >= persons and not booked:
+                room_cost = int(pr) * days
+                food_cost = 500 * days if fd == "Yes" else 0
+                laundry_cost = 300 if la == "Yes" else 0
+                total = room_cost + food_cost + laundry_cost
+
+                save_invoice(user, no, start, end, room_cost, food_cost, laundry_cost, total)
+                save_booking(user, no, start, end, total)
+                save_revenue(total)
+
+                updated.append(f"{no},{t},{ac},{cap},{pr},{fd},{la},{wi},False\n")
+                booked = True
+
+                print_invoice(user, no, start, end, room_cost, food_cost, laundry_cost, total)
+            else:
+                updated.append(r)
+
+     
+
+
+    with open(FILES["rooms"], "w") as f:
+        f.writelines(updated)
+
+    if not booked:
+        print("❌ No suitable room available")
+def save_invoice(user, room, start, end, rc, fc, lc, total):
+    with open(FILES["invoices"], "a") as f:
+        f.write(f"{user},{room},{start},{end},{rc},{fc},{lc},{total}\n")
+
+
+def print_invoice(user, room, start, end, rc, fc, lc, total):
+    print("\n------ HOSTIFY INVOICE ------")
+    print("Customer:", user)
+    print("Room:", room)
+    print("Stay:", start, "to", end)
+    print("Room Charges:", rc)
+    print("Food Charges:", fc)
+    print("Laundry Charges:", lc)
+    print("TOTAL:", total)
+    print("-----------------------------")
+
+
+def save_booking(user, room, start, end, total):
+    with open(FILES["bookings"], "a") as f:
+        f.write(f"{user},{room},{start},{end},{total}\n")
+
+
+def save_revenue(amount):
+    with open(FILES["revenue"], "a") as f:
+        f.write(str(amount) + "\n")
+def view_customers():
+    print("\n--- CUSTOMER DETAILS ---\n")
+    with open(FILES["customers"]) as f:
+        for c in f:
+            data = c.strip().split(",")
+
+            if len(data) < 8:
+                continue
+
+            print("Name       :", data[0])
+            print("Gender     :", data[1])
+            print("Email      :", data[2])
+            print("Mobile     :", data[3])
+            print("ID Type    :", data[4])
+            print("ID Number  :", data[5])
+            print("Username   :", data[6])
+            print("-" * 30)
+
+
+
+def view_bookings():
+    print("\n--- BOOKING DETAILS ---\n")
+    with open(FILES["bookings"]) as f:
+        for b in f:
+            data = b.strip().split(",")
+
+            if len(data) < 5:
+                continue
+
+            print("Customer Username :", data[0])
+            print("Room Number       :", data[1])
+            print("Check-in Date     :", data[2])
+            print("Check-out Date    :", data[3])
+            print("Total Bill        :", data[4])
+            print("-" * 30)
+
+def show_revenue():
+    import matplotlib.pyplot as plt
+
+    room_price = {}
+    room_revenue = {}
+
+    # Read rooms
+    with open(FILES["rooms"]) as f:
+        for r in f:
+            d = r.strip().split(",")
+            if len(d) != 9:
+                continue
+            room_price[d[0].strip()] = int(d[4].strip())
+
+    # Read bookings
+    with open(FILES["bookings"]) as f:
+        for b in f:
+            d = b.strip().split(",")
+            room_no = d[1].strip()
+            room_revenue[room_no] = room_revenue.get(room_no, 0) + room_price.get(room_no, 0)
+
+    if not room_revenue:
+        print("❌ No revenue data available")
+        return
+
+    plt.figure(figsize=(6,4))
+    plt.bar(room_revenue.keys(), room_revenue.values())
+    plt.xlabel("Room Number")
+    plt.ylabel("Revenue (₹)")
+    plt.title("Room-wise Revenue")
+    plt.show()
+
+while True:
+    print("\n=== HOSTIFY HOTEL MANAGEMENT ===")
+    print("1. Admin Login")
+    print("2. Customer Login")
+    print("3. Register Customer")
+    print("4. View Revenue")
+    print("5. Exit")
+
+    ch = input("Enter choice: ")
+
+    if ch == "1":
+        admin_login()
+    elif ch == "2":
+        customer_login()
+    elif ch == "3":
+        register_customer()
+    elif ch == "4":
+        show_revenue()
+    elif ch == "5":
+        print("Thank you for using HOSTIFY")
+        break

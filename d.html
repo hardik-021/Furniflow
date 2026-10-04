@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Classic Furniture Store</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+background:#f5f1ea;
+font-family:"Times New Roman", serif;
+}
+
+.navbar{
+background:#5a3e2b;
+}
+
+.navbar-brand{
+color:white !important;
+font-weight:bold;
+}
+
+.hero{
+background:url("https://images.unsplash.com/photo-1616486338812-3dadae4b4ace") center/cover;
+height:350px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+text-shadow:2px 2px 5px black;
+}
+
+.card:hover{
+transform:scale(1.05);
+transition:0.3s;
+}
+
+.btn-classic{
+background:#5a3e2b;
+color:white;
+}
+
+.login-box{
+max-width:420px;
+margin:auto;
+margin-top:60px;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+<div class="login-box">
+
+<h3 class="text-center">Login</h3>
+
+<input type="text" id="loginUser" class="form-control mt-3" placeholder="Username">
+<input type="password" id="loginPass" class="form-control mt-3" placeholder="Password">
+
+<button onclick="login()" class="btn btn-classic mt-3 w-100">
+Login
+</button>
+
+<p class="text-center mt-3">
+<a href="#" onclick="showRegister()">Create Account</a>
+</p>
+
+</div>
+</div>
+
+
+<!-- REGISTER PAGE -->
+<div id="registerPage" class="hidden">
+<div class="login-box">
+
+<h3 class="text-center">Create Account</h3>
+
+<input type="text" id="regName" class="form-control mt-2" placeholder="Full Name">
+<input type="text" id="regContact" class="form-control mt-2" placeholder="Contact Number">
+<input type="text" id="regAddress" class="form-control mt-2" placeholder="Address">
+<input type="text" id="regUser" class="form-control mt-2" placeholder="Username">
+<input type="password" id="regPass" class="form-control mt-2" placeholder="Password">
+
+<button onclick="register()" class="btn btn-success mt-3 w-100">
+Register
+</button>
+
+<button onclick="showLogin()" class="btn btn-secondary mt-2 w-100">
+Back
+</button>
+
+</div>
+</div>
+
+
+<!-- STORE PAGE -->
+<div id="storePage" class="hidden">
+
+<nav class="navbar navbar-expand-lg">
+<div class="container">
+
+<span class="navbar-brand">Classic Furniture Store</span>
+
+<div>
+<span class="text-white me-3" id="welcomeUser"></span>
+<button class="btn btn-light me-2" onclick="showShop()">Home</button>
+
+
+<button class="btn btn-warning me-2" onclick="showAddFurniture()">Add Furniture</button>
+
+<button class="btn btn-light me-2" onclick="showCart()">
+Cart 🛒 (<span id="cartCount">0</span>)
+</button>
+
+<button class="btn btn-danger" onclick="logout()">Logout</button>
+
+</div>
+
+</div>
+</nav>
+
+
+<div class="hero">
+<h1>Elegant Classic Furniture</h1>
+</div>
+
+
+<!-- SHOP PAGE -->
+<div id="shopPage" class="container mt-5">
+
+<h2>Furniture Collection</h2>
+
+<div class="row" id="productList"></div>
+
+</div>
+
+
+<!-- CART PAGE -->
+<div id="cartPage" class="container mt-5 hidden">
+
+<h2>Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<h4 class="mt-3">
+Total: ₹<span id="totalPrice">0</span>
+</h4>
+
+<button onclick="buyNow()" class="btn btn-success mt-2">Buy Now</button>
+
+<button onclick="showShop()" class="btn btn-secondary mt-2">Back</button>
+
+</div>
+
+
+<!-- ADD FURNITURE PAGE -->
+<div id="addFurniturePage" class="container mt-5 hidden">
+
+<h2>Add Furniture</h2>
+
+<input type="text" id="fName" class="form-control mt-2" placeholder="Furniture Name">
+<input type="number" id="fPrice" class="form-control mt-2" placeholder="Price">
+<input type="text" id="fImage" class="form-control mt-2" placeholder="Image URL">
+
+<button onclick="addFurniture()" class="btn btn-success mt-3">Add Furniture</button>
+
+<button onclick="showShop()" class="btn btn-secondary mt-3">Back</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+// USERS
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+
+// PRODUCTS (MORE PRODUCTS ADDED)
+let products = [
+
+{
+name:"Office Chair",//1
+price:4500,
+image:"../images/product/Chair/hb/hb4.jpg"
+},
+
+{
+name:"gaming chair",//2
+price:15000,
+image:"g.webp"
+},
+{
+name:"plastic Chair",//3
+price:500,
+image:"c3.jpg"
+},
+
+{
+name:"Garden Chair",//4
+price:1000,
+image:"c4.jpg"
+},
+{
+name:"luxury sofa",//5
+price:28000,
+image:"../images/product/Sofas/Hsofa/hs6.jpg"
+},
+{
+name:"luxury sofa",//6
+price:38000,
+image:"../images/product/Sofas/Hsofa/hs5.jpg"
+},
+{
+name:"luxury sofa",//7
+price:18000,
+image:"../images/product/Sofas/Hsofa/hs4.jpg"
+},
+{
+name:"luxury sofa",//8
+price:50000,
+image:"../images/product/Sofas/Hsofa/hs8.jpg"
+},
+{
+name:"office table",//9
+price:15000,
+image:"../images/product/Table/Etable/et2.jpg"
+},
+{
+name:"table",//10
+price:18000,
+image:"../images/product/Table/Etable/et3.jpg" 
+}
+,
+{
+name:"computer table",//11
+price:6000,
+image:"../images/product/Table/Etable/et4.jpg" 
+},
+{
+name:"office table",//12
+price:18000,
+image:"../images/product/Table/Etable/et5.jpg" 
+},
+{
+name:"kids bench",//13
+price:6000,
+image:"../images/product/Benches/b1.jpg"
+},
+{
+name:"kids bench",//14
+price:700,
+image:"../images/product/Benches/b2.jpg"
+},
+{
+name:"schoo bench",//15
+price:1000,
+image:"../images/product/Benches/b3.jpg"
+},
+{
+name:"tution",//16
+price:800,
+image:"../images/product/Benches/b4.jpg"
+},
+{
+name:"hospital waiting chair",//17
+price:8000,
+image:"../images/product/Wchair/wc1.jpg"
+},
+{
+name:"viva chair",//18
+price:8000,
+image:"../images/product/Wchair/wc4.jpg"
+},
+{
+name:"school waiting chair",//19
+price:7000,
+image:"../images/product/Wchair/wc5.jpg"
+},
+{
+name:"office waiting chair",//20
+price:7000,
+image:"../images/product/Wchair/wc6.jpg"
+}
+,
+{
+name:"wood cupboard",//21
+price:15000,
+image:"c1.jpg"
+},
+{
+name:"luxury cupboard",//22
+price:40000,
+image:"c2.webp"
+},
+{
+name:"white cupboard",//23
+price:28000,
+image:"c3.webp"
+},
+{
+name:"shose cupboard",//24
+price:3000,
+image:"c4.webp"
+},
+{
+name:"luxury Bed",//25
+price:95000,
+image:"b1.jpg"
+},
+{
+name:"luxury bed",//26
+price:98000,
+image:"b2.webp"
+},
+{
+name:"Wooden Bed",//27
+price:70000,
+image:"b3.jpg"
+},
+{
+name:"Kids Bed",//28
+price:50000,
+image:"b4.webp"
+},
+{
+name:"Daining table",//29
+price:35000,
+image:"1.jpeg"
+},
+{
+name:"Daining table",//30
+price:45000,
+image:"3.webp"
+},
+{
+name:"luxury Daining table",//31
+price:90000,
+image:"4.webp"
+},
+{
+name:"Daining table",//32
+price:25000,
+image:"1.jpeg"
+}
+
+];
+
+
+// CART
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+
+// REGISTER
+function register(){
+
+if(!regName.value || !regContact.value || !regAddress.value || !regUser.value || !regPass.value){
+alert("Fill all fields");
+return;
+}
+
+let user={
+name:regName.value,
+contact:regContact.value,
+address:regAddress.value,
+username:regUser.value,
+password:regPass.value
+};
+
+users.push(user);
+localStorage.setItem("users",JSON.stringify(users));
+
+alert("Account Created");
+showLogin();
+
+}
+
+
+// LOGIN
+function login(){
+
+let user=users.find(u=>u.username==loginUser.value && u.password==loginPass.value);
+
+if(user){
+localStorage.setItem("currentUser",JSON.stringify(user));
+showStore();
+}
+else{
+alert("Invalid Login");
+}
+
+}
+
+
+// LOGOUT
+function logout(){
+localStorage.removeItem("currentUser");
+showLogin();
+}
+
+
+// PAGE CONTROL
+function showLogin(){
+loginPage.classList.remove("hidden");
+registerPage.classList.add("hidden");
+storePage.classList.add("hidden");
+}
+
+function showRegister(){
+loginPage.classList.add("hidden");
+registerPage.classList.remove("hidden");
+}
+
+function showStore(){
+
+loginPage.classList.add("hidden");
+registerPage.classList.add("hidden");
+storePage.classList.remove("hidden");
+
+let user=JSON.parse(localStorage.getItem("currentUser"));
+welcomeUser.innerHTML="Welcome, "+user.name;
+
+displayProducts();
+updateCartCount();
+showShop();
+
+}
+
+function showCart(){
+shopPage.classList.add("hidden");
+cartPage.classList.remove("hidden");
+addFurniturePage.classList.add("hidden");
+displayCart();
+}
+
+function showShop(){
+shopPage.classList.remove("hidden");
+cartPage.classList.add("hidden");
+addFurniturePage.classList.add("hidden");
+}
+
+function showAddFurniture(){
+shopPage.classList.add("hidden");
+cartPage.classList.add("hidden");
+addFurniturePage.classList.remove("hidden");
+}
+
+
+// DISPLAY PRODUCTS
+function displayProducts(){
+
+let html="";
+
+products.forEach((p,i)=>{
+
+html+=`
+<div class="col-md-3 mt-4">
+<div class="card">
+<img src="${p.image}" height="200" style="object-fit:cover;">
+<div class="card-body">
+<h5>${p.name}</h5>
+<p>₹${p.price}</p>
+<button onclick="addToCart(${i})" class="btn btn-classic w-100">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+`;
+
+});
+
+productList.innerHTML=html;
+
+}
+
+
+// ADD FURNITURE
+function addFurniture(){
+
+if(!fName.value || !fPrice.value || !fImage.value){
+alert("Fill all fields");
+return;
+}
+
+products.push({
+name:fName.value,
+price:parseInt(fPrice.value),
+image:fImage.value
+});
+
+localStorage.setItem("products",JSON.stringify(products));
+
+alert("Furniture Added");
+
+fName.value="";
+fPrice.value="";
+fImage.value="";
+
+displayProducts();
+showShop();
+
+}
+
+
+// ADD CART
+function addToCart(i){
+
+cart.push(products[i]);
+
+localStorage.setItem("cart",JSON.stringify(cart));
+
+updateCartCount();
+
+alert("Added to Cart");
+
+}
+function setPayment(method, el) {
+        selectedPayMethod = method;
+        document.querySelectorAll('.pay-box').forEach(box => box.classList.remove('active'));
+        el.classList.add('active');
+        el.querySelector('input').checked = true;
+        document.getElementById("qrDiv").style.display = (method === 'QR') ? 'block' : 'none';
+    }
+
+// DISPLAY CART
+function displayCart(){
+
+let html="";
+let total=0;
+
+cart.forEach((item,i)=>{
+
+total+=item.price;
+
+html+=`
+<div class="d-flex justify-content-between border p-2 mt-2">
+<div>
+<img src="${item.image}" width="50">
+${item.name}
+</div>
+<div>₹${item.price}</div>
+<button onclick="removeCart(${i})" class="btn btn-danger btn-sm">
+Remove
+</button>
+</div>
+`;
+
+});
+
+cartItems.innerHTML=html;
+totalPrice.innerText=total;
+
+}
+
+
+// REMOVE CART
+function removeCart(i){
+
+cart.splice(i,1);
+
+localStorage.setItem("cart",JSON.stringify(cart));
+
+displayCart();
+updateCartCount();
+
+}
+
+
+// UPDATE COUNT
+function updateCartCount(){
+cartCount.innerText=cart.length;
+}
+
+
+// BUY NOW
+function buyNow(){
+
+if(cart.length==0){
+alert("Cart empty");
+return;
+}
+
+let user=JSON.parse(localStorage.getItem("currentUser"));
+
+let msg="Order Confirmed\n\n";
+
+msg+="Name: "+user.name+"\n";
+msg+="Contact: "+user.contact+"\n";
+msg+="Address: "+user.address+"\n\n";
+
+let total=0;
+
+cart.forEach(item=>{
+msg+=item.name+" ₹"+item.price+"\n";
+total+=item.price;
+});
+
+msg+="\nTotal: ₹"+total;
+
+alert(msg);
+
+cart=[];
+localStorage.removeItem("cart");
+
+updateCartCount();
+displayCart();
+
+}
+
+
+// START
+showLogin();
+
+</script>
+
+</body>
+</html>

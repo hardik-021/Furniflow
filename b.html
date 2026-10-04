@@ -1,0 +1,515 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Furniture | Premium Interiors</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-gradient: linear-gradient(45deg, #d4af37, #f9e27d);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .section { display: none; }
+        #loginPage { display: flex; }
+
+        h1, h2, h3, .navbar-brand { font-family: 'Playfair Display', serif; }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            border: none;
+            font-weight: 600;
+            color: #000;
+            transition: 0.3s;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        #loginPage {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80') no-repeat center/cover;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1616489953149-80983637655d?auto=format&fit=crop&q=80&w=2000') no-repeat center/cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.7);
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+            color: white;
+            height: 100%;
+        }
+
+        .card:hover { border-color: var(--gold); transform: translateY(-5px); }
+        .card img { height: 220px; object-fit: cover; width: 100%; }
+
+        ::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+            font-weight: 300;
+        }
+
+        .navbar { background: #000 !important; border-bottom: 1px solid #222; }
+
+        #imgPreviewBox {
+            background: #1a1a1a;
+            border: 1px dashed var(--gold);
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+        }
+
+        footer { padding: 30px; text-align: center; border-top: 1px solid #222; margin-top: 50px; color: #666; }
+
+        /* Payment UI Styles */
+        .modal-content { background: #1a1a1a; color: white; border: 1px solid var(--gold); }
+        .pay-box { border: 1px solid #333; padding: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
+        .pay-box:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
+        .pay-box.active { border-color: var(--gold); background: rgba(212, 175, 55, 0.2); }
+    </style>
+</head>
+<body>
+
+<nav id="navbar" class="navbar navbar-expand-lg sticky-top section">
+    <div class="container">
+        <span class="navbar-brand text-warning fs-3">LUXURY FURNITURE</span>
+        <div class="ms-auto d-flex gap-2">
+            <button class="btn btn-outline-warning btn-sm" id="navHome" onclick="showHome()">Home</button>
+            <button class="btn btn-outline-warning btn-sm" id="navAll" onclick="showCollections()">Collections</button>
+            <button class="btn btn-outline-warning btn-sm" id="navCart" onclick="showCart()">Cart (<span id="cartCount">0</span>)</button>
+            <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div id="loginPage" class="section">
+    <div class="glass text-center">
+        <h2 class="text-warning mb-4 fw-bold">Pure Elegance Awaits</h2>
+        
+        <div class="mb-3">
+            <select id="role" class="form-control bg-dark text-white border-secondary" onchange="toggleLoginFields()">
+                <option value="customer">Customer Access</option>
+                <option value="admin">Admin Dashboard</option>
+            </select>
+        </div>
+
+        <div id="customerFields">
+            <input type="text" id="username" class="form-control mb-3 bg-dark text-white border-secondary" placeholder="Type your full name here...">
+                        <input type="tel" id="phone" class="form-control mb-3 bg-dark text-white border-secondary" placeholder="Enter contact no">
+      
+      <textarea name="message" id="msg"class="form-control mb-3 bg-dark text-white border-secondary" rows="2" cols="30" placeholder="Enter your address"></textarea>
+         </div>
+
+        <div id="adminFields" style="display: none;">
+            <input type="email" id="adminEmail" class="form-control mb-3 bg-dark text-white border-secondary" placeholder="e.g. admin@luxury.com">
+            <input type="password" id="adminPass" class="form-control mb-3 bg-dark text-white border-secondary" placeholder="Enter secure password">
+        </div>
+
+        <button class="btn btn-gold w-100" onclick="login()">LOGIN</button>
+    </div>
+</div>
+
+<div id="customerPage" class="section">
+    <div class="hero">
+        <h1 class="fw-bold text-warning">Design Your Dreams</h1>
+        <p class="lead fs-4">Exquisite Collection for Modern Spaces & Timeless Living</p>
+    </div>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning">New Arrivals</h2>
+            <button class="btn btn-gold btn-sm" onclick="showCollections()">View All Items</button>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="productDisplay"></div>
+    </div>
+</div>
+
+<div id="collectionsPage" class="section container mt-5 pt-4">
+    <div class="text-center mb-5">
+        <h1 class="text-warning display-4">Explore Our Collections</h1>
+        <p class="text-muted">Discover the perfect piece for every corner of your home</p>
+        <hr class="border-warning w-25 mx-auto">
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <input type="text" id="collSearch" class="form-control bg-dark text-white border-secondary" placeholder="Search furniture by name..." onkeyup="searchCollections()">
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="allProductsGrid">
+        </div>
+</div>
+
+<div id="cartPage" class="section container mt-5">
+    <h2 class="text-warning mb-4">Shopping Cart</h2>
+    <div class="row">
+        <div class="col-md-8" id="cartItems"></div>
+        <div class="col-md-4">
+            <div class="card p-4">
+                <h4>Total Order</h4>
+                <h2 class="text-warning">₹ <span id="totalPrice">0</span></h2>
+                <button class="btn btn-gold w-100 mt-3" onclick="openPaymentModal()">Buy Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-warning">Select Payment Method</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="pay-box" onclick="setPayment('COD', this)">
+                    <input type="radio" name="payOption" id="payCod"> <b>Cash on Delivery</b>
+                </div>
+                <div class="pay-box" onclick="setPayment('QR', this)">
+                    <input type="radio" name="payOption" id="payQr"> <b>QR Code (Scan & Pay)</b>
+                </div>
+                
+                <div id="qrDiv" class="text-center mt-3" style="display:none;">
+                    <p class="small">Scan this QR to pay ₹<span id="qrAmt"></span></p>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=LuxuryFurniturePayment" class="bg-white p-2 rounded">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-gold w-100" onclick="confirmFinalOrder()">Confirm My Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="adminPage" class="section container mt-5">
+    <h2 class="text-warning mb-4">Inventory Management</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-4">
+                <h5>Add New Product</h5>
+                <hr class="border-secondary">
+                <input type="text" id="pname" class="form-control mb-2 bg-dark text-white" placeholder="Product Name">
+                <input type="number" id="pprice" class="form-control mb-2 bg-dark text-white" placeholder="Price (₹)">
+                <input type="text" id="pimg" class="form-control mb-2 bg-dark text-white" placeholder=" add Image name" oninput="previewImg()">
+                
+                <div id="imgPreviewBox" class="text-center mb-2">
+                    <p class="small text-warning mb-1">Image Preview</p>
+                    <img id="targetImg" src="" width="100%" class="rounded">
+                </div>
+
+                <button class="btn btn-gold w-100 mt-2" onclick="addNewProduct()">Add to Store</button>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover border border-secondary">
+                    <thead>
+                        <tr><th>Image</th><th>Name</th><th>Price</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 Luxury Furniture | Excellence in Premium Craftsmanship</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let defaultProducts = [
+        {name: "Office Chair", price: 4500, img: "k.webp"},//1
+
+        {name: "Gaming Chair", price: 15000, img: "g.webp"},//2
+
+        {name: "Plastic Chair", price: 500, img: "c3.jpg"},//3
+
+        {name: "Garden Chair", price: 1000, img: "c4.jpg"},//4
+
+        {name: "Luxury Sofa", price: 85000, img: "../images/product/Sofas/Hsofa/hs6.jpg"},//5
+
+        {name: "Luxury Sofa", price: 75000, img: "../images/product/Sofas/Hsofa/hs5.jpg"},//6
+
+        {name: "Luxury Sofa", price: 78000, img: "../images/product/Sofas/Hsofa/hs4.jpg"},//7
+
+        {name: "Royal Velvet Sofa", price: 45000, img: "../images/product/Sofas/Hsofa/hs8.jpg"},//8
+
+        {name: "Office Table", price: 15000, img: "../images/product/Table/Etable/et2.jpg"},//9
+
+        {name: "Table", price: 15000, img: "../images/product/Table/Etable/et3.jpg"},//10
+
+        {name: " Computer Table", price: 8000, img: "../images/product/Table/Etable/et4.jpg"},//11
+
+        {name: " Table", price: 18000, img: "../images/product/Table/Etable/et5.jpg"},//12
+
+        {name: "Kids Batch", price: 7000, img: "../images/product/Benches/b1.jpg"},//13
+
+        {name: "Office Table", price: 5000, img: "../images/product/Benches/b2.jpg"},//14
+
+        {name: "School Batch", price: 8000, img: "../images/product/Benches/b3.jpg"},//15
+
+        {name: "Tution Batch", price: 45000, img: "../images/product/Benches/b4.jpg"},//16
+
+        {name: "Hospital Waiting Chair", price: 8000, img: "../images/product/Wchair/wc1.jpg"},//17
+
+        {name: "Viva Chair", price: 7000, img: "../images/product/Wchair/wc4.jpg"},//18
+
+        {name: "School Waiting Chair", price: 7000, img: "../images/product/Wchair/wc5.jpg"},//19
+
+        {name: "Office Waiting Chair", price: 12000, img: "../images/product/Wchair/wc6.jpg"},//20
+
+        {name: "Wood Cupboard", price: 15000, img: "c1.jpg"},//21
+
+        {name: "Luxury Cupboard", price: 25000, img: "c2.webp"},//22
+
+        {name: "White Cupboard", price: 18000, img: "c3.webp"},//23
+
+        {name: "Shose Cupboard", price: 5000, img: "c4.webp"},//24
+
+        {name: "Luxury Bed", price: 95000, img: "b1.jpg"},//25
+
+        {name: "Luxury Bed", price: 85000, img: "b2.webp"},//26
+
+        {name: "Wood Bed", price: 75000, img: "b3.jpg"},//27
+
+        {name: "Kids Bed", price: 62000, img: "b4.webp"},//28
+
+        {name: "Daining Table", price: 35000, img: "1.jpeg"},//29
+
+        {name: "Daining Table", price: 45000, img: "3.webp"},//30
+
+        {name: "Luxury Daining Table", price: 90000, img: "4.webp"},//31
+
+        {name: "Wood Daining table", price: 25000, img: "1.jpeg"},//32
+    ];
+
+    let products = JSON.parse(localStorage.getItem('my_luxury_db')) || defaultProducts;
+    let cart = [];
+    let selectedPayMethod = "";
+
+    function toggleLoginFields() {
+        const role = document.getElementById("role").value;
+        const emailBox = document.getElementById("adminEmail");
+        const passBox = document.getElementById("adminPass");
+        
+        // Reset styles and placeholders when switching
+        emailBox.style.borderColor = "#6c757d";
+        passBox.style.borderColor = "#6c757d";
+        emailBox.placeholder = "e.g. admin@luxury.com";
+        passBox.placeholder = "Enter secure password";
+
+        if(role === "admin") {
+            document.getElementById("adminFields").style.display = "block";
+            document.getElementById("customerFields").style.display = "none";
+        } else {
+            document.getElementById("adminFields").style.display = "none";
+            document.getElementById("customerFields").style.display = "block";
+        }
+    }
+
+    function login() {
+        const role = document.getElementById("role").value;
+        if(role === "admin") {
+            const emailBox = document.getElementById("adminEmail");
+            const passBox = document.getElementById("adminPass");
+            const email = emailBox.value;
+            const pass = passBox.value;
+
+            if(email === "admin@luxury.com" && pass === "admin123") {
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("navbar").style.display = "block";
+                document.getElementById("navHome").style.display = "none";
+                document.getElementById("navAll").style.display = "none";
+                document.getElementById("navCart").style.display = "none";
+                showAdmin();
+            } else { 
+                // Handle Invalid Credentials without Alert
+                if(email !== "admin@luxury.com") {
+                    emailBox.value = "";
+                    emailBox.placeholder = "Invalid Email!";
+                    emailBox.style.borderColor = "red";
+                }
+                if(pass !== "admin123") {
+                    passBox.value = "";
+                    passBox.placeholder = "Invalid Password!";
+                    passBox.style.borderColor = "red";
+                }
+            }
+        } else {
+            const user = document.getElementById("username").value;
+            if(!user) return alert("Please enter your name");
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("navbar").style.display = "block";
+            showHome();
+        }
+    }
+
+    function logout() { location.reload(); }
+    
+    function hideAll() { ['customerPage', 'cartPage', 'adminPage', 'collectionsPage'].forEach(id => document.getElementById(id).style.display = "none"); }
+    
+    function showHome() { 
+        hideAll(); 
+        document.getElementById("customerPage").style.display = "block"; 
+        renderProducts(products.slice(0, 4), "productDisplay"); 
+    }
+
+    function showCollections() {
+        hideAll();
+        document.getElementById("collectionsPage").style.display = "block";
+        renderProducts(products, "allProductsGrid");
+    }
+
+    function showCart() { hideAll(); document.getElementById("cartPage").style.display = "block"; renderCart(); }
+    function showAdmin() { hideAll(); document.getElementById("adminPage").style.display = "block"; renderAdminTable(); }
+
+    function renderProducts(data, targetId) {
+        let html = "";
+        data.forEach((p, i) => {
+            html += `<div class="col"><div class="card"><img src="${p.img}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'"><div class="p-3"><h5 class="mb-1">${p.name}</h5><p class="text-warning fw-bold mb-2">₹ ${p.price}</p><button class="btn btn-gold btn-sm w-100" onclick="addToCart('${p.name}', ${p.price}, '${p.img}')">Add to Cart</button></div></div></div>`;
+        });
+        document.getElementById(targetId).innerHTML = html || "<p class='text-center w-100'>No products found.</p>";
+    }
+
+    function searchCollections() {
+        let val = document.getElementById("collSearch").value.toLowerCase();
+        let filtered = products.filter(p => p.name.toLowerCase().includes(val));
+        renderProducts(filtered, "allProductsGrid");
+    }
+
+    function searchProduct() {
+        showCollections();
+        document.getElementById("collSearch").value = document.getElementById("search").value;
+        searchCollections();
+    }
+
+    function addToCart(name, price, img) {
+        cart.push({name, price, img});
+        document.getElementById("cartCount").innerText = cart.length;
+        alert("Added to cart!");
+    }
+
+    function renderCart() {
+        let html = ""; let total = 0;
+        cart.forEach((item, i) => {
+            total += item.price;
+            html += `<div class="card mb-2 p-2 flex-row align-items-center justify-content-between"><div class="d-flex align-items-center"><img src="${item.img}" style="width:70px; height:50px; object-fit:cover;" class="rounded me-3"><h6 class="mb-0">${item.name}</h6></div><div class="d-flex align-items-center"><span class="text-warning me-3">₹ ${item.price}</span><button class="btn btn-outline-danger btn-sm" onclick="removeFromCart(${i})">X</button></div></div>`;
+        });
+        document.getElementById("cartItems").innerHTML = html || "<p class='text-muted'>Cart is empty.</p>";
+        document.getElementById("totalPrice").innerText = total;
+    }
+
+    function removeFromCart(i) { cart.splice(i, 1); document.getElementById("cartCount").innerText = cart.length; renderCart(); }
+
+    function openPaymentModal() {
+        if(cart.length === 0) return alert("Cart is empty");
+        document.getElementById("qrAmt").innerText = document.getElementById("totalPrice").innerText;
+        let payModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        payModal.show();
+    }
+
+    function setPayment(method, el) {
+        selectedPayMethod = method;
+        document.querySelectorAll('.pay-box').forEach(box => box.classList.remove('active'));
+        el.classList.add('active');
+        el.querySelector('input').checked = true;
+        document.getElementById("qrDiv").style.display = (method === 'QR') ? 'block' : 'none';
+    }
+
+    function confirmFinalOrder() {
+        
+        if(!selectedPayMethod) return alert("Please select a payment method first!");
+        alert("🎉 Your Order is Confirmed via " + (selectedPayMethod === 'COD' ? "Cash on Delivery" : "QR Code Scan") + "!");
+        cart = [];
+        document.getElementById("cartCount").innerText = "0";
+        selectedPayMethod = "";
+        let modalEl = document.getElementById('paymentModal');
+        let modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance.hide();
+        showHome();
+    }
+
+    function previewImg() {
+        const url = document.getElementById("pimg").value;
+        const box = document.getElementById("imgPreviewBox");
+        const img = document.getElementById("targetImg");
+        if(url) { img.src = url; box.style.display = "block"; } else { box.style.display = "none"; }
+    }
+
+    function addNewProduct() {
+        let name = document.getElementById("pname").value;
+        let price = parseInt(document.getElementById("pprice").value);
+        let img = document.getElementById("pimg").value;
+        if(!name || !price || !img) return alert("Please fill all fields");
+        products.push({name, price, img});
+        localStorage.setItem('my_luxury_db', JSON.stringify(products));
+        document.getElementById("pname").value = "";
+        document.getElementById("pprice").value = "";
+        document.getElementById("pimg").value = "";
+        document.getElementById("imgPreviewBox").style.display = "none";
+        renderAdminTable();
+        alert("Product Added Successfully!");
+    }
+
+    function renderAdminTable() {
+        let html = "";
+        products.forEach((p, i) => {
+            html += `<tr class="align-middle"><td><img src="${p.img}" width="50" height="40" style="object-fit:cover;" class="rounded"></td><td>${p.name}</td><td>₹ ${p.price}</td><td><button class="btn btn-danger btn-sm" onclick="deleteProduct(${i})">Delete</button></td></tr>`;
+        });
+        document.getElementById("adminTableBody").innerHTML = html;
+    }
+
+    function deleteProduct(i) {
+        products.splice(i, 1);
+        localStorage.setItem('my_luxury_db', JSON.stringify(products));
+        renderAdminTable();
+    }
+</script>
+
+</body>
+</html>

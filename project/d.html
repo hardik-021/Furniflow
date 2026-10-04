@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Furniflow – Furniture Order System</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+}
+
+/* ---------- LOGIN ---------- */
+#loginPage{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(to right,#2c3e50,#4ca1af);
+}
+.login-box{
+    width:360px;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 15px rgba(0,0,0,0.3);
+}
+
+/* ---------- DASHBOARD ---------- */
+#dashboard{
+    display:none;
+    background: linear-gradient(to right,#f8f9fa,#e3f2fd);
+    min-height:100vh;
+}
+h1,h2,h3{
+    color:#2c3e50;
+    text-shadow:1px 1px 2px gray;
+}
+.card{
+    animation: fadeIn 0.6s ease;
+}
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(15px)}
+    to{opacity:1;transform:translateY(0)}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN PAGE ================= -->
+<div id="loginPage">
+    <div class="login-box">
+        <h2 class="text-center">🪑 Furniflow Login</h2>
+        <input id="username" class="form-control mb-3" placeholder="Username">
+        <input id="password" type="password" class="form-control mb-3" placeholder="Password">
+        <button class="btn btn-dark w-100" onclick="login()">Login</button>
+        <p class="text-center text-muted mt-3">Seller Access Only</p>
+    </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="dashboard">
+
+<nav class="navbar navbar-dark bg-dark">
+<div class="container-fluid">
+<a class="navbar-brand">Furniflow</a>
+<button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+</div>
+</nav>
+
+<div class="container mt-4">
+
+<h1 class="text-center">Furniture Management & Order System</h1>
+<p class="text-center text-muted">Add furniture → Place order → Confirm order</p>
+
+<!-- ADD FURNITURE -->
+<div class="card p-4 mb-4">
+<h3>Add Furniture</h3>
+<input id="fname" class="form-control mb-2" placeholder="Furniture Name">
+<input id="fcategory" class="form-control mb-2" placeholder="Category">
+<input id="fprice" type="number" class="form-control mb-2" placeholder="Price">
+<input id="fqty" type="number" class="form-control mb-2" placeholder="Quantity">
+<button class="btn btn-success mt-2" onclick="addFurniture()">Add Furniture</button>
+</div>
+
+<!-- FURNITURE LIST -->
+<div class="card p-4 mb-4">
+<h3>Furniture List</h3>
+<table class="table table-bordered table-hover">
+<thead class="table-dark">
+<tr>
+<th>Name</th>
+<th>Category</th>
+<th>Price</th>
+<th>Qty</th>
+<th>Order</th>
+</tr>
+</thead>
+<tbody id="furnitureTable"></tbody>
+</table>
+</div>
+
+<!-- ORDER LIST -->
+<div class="card p-4 mb-4">
+<h3>Order List</h3>
+
+<table class="table table-bordered">
+<thead class="table-dark">
+<tr>
+<th>Name</th>
+<th>Price</th>
+<th>Remove</th>
+</tr>
+</thead>
+<tbody id="orderTable"></tbody>
+</table>
+
+<h5 id="totalAmount">Total: ₹0</h5>
+
+<!-- ✅ CONFIRM ORDER BUTTON -->
+<button class="btn btn-primary mt-3 w-100" onclick="confirmOrder()">
+Confirm Order
+</button>
+
+</div>
+
+</div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+/* ---------- LOGIN ---------- */
+function login(){
+    if(username.value==="seller" && password.value==="1234"){
+        loginPage.style.display="none";
+        dashboard.style.display="block";
+    }else{
+        alert("Invalid Username or Password");
+    }
+}
+function logout(){
+    dashboard.style.display="none";
+    loginPage.style.display="flex";
+}
+
+/* ---------- DATA ---------- */
+let furnitureData=[];
+let orderData=[];
+
+/* ---------- FURNITURE ---------- */
+function addFurniture(){
+    if(!fname.value || !fcategory.value || !fprice.value || !fqty.value){
+        alert("Please fill all fields");
+        return;
+    }
+    furnitureData.push({
+        name:fname.value,
+        category:fcategory.value,
+        price:fprice.value,
+        qty:fqty.value
+    });
+    displayFurniture();
+    fname.value=fcategory.value=fprice.value=fqty.value="";
+}
+
+function displayFurniture(){
+    furnitureTable.innerHTML="";
+    furnitureData.forEach((f,i)=>{
+        furnitureTable.innerHTML+=`
+        <tr>
+            <td>${f.name}</td>
+            <td>${f.category}</td>
+            <td>₹${f.price}</td>
+            <td>${f.qty}</td>
+            <td><button class="btn btn-sm btn-primary" onclick="addToOrder(${i})">Add</button></td>
+        </tr>`;
+    });
+}
+
+/* ---------- ORDER ---------- */
+function addToOrder(i){
+    orderData.push(furnitureData[i]);
+    displayOrder();
+}
+
+function displayOrder(){
+    orderTable.innerHTML="";
+    let total=0;
+    orderData.forEach((o,i)=>{
+        total+=parseInt(o.price);
+        orderTable.innerHTML+=`
+        <tr>
+            <td>${o.name}</td>
+            <td>₹${o.price}</td>
+            <td><button class="btn btn-sm btn-danger" onclick="removeOrder(${i})">Remove</button></td>
+        </tr>`;
+    });
+    totalAmount.innerText="Total: ₹"+total;
+}
+
+function removeOrder(i){
+    orderData.splice(i,1);
+    displayOrder();
+}
+
+/* ---------- ✅ CONFIRM ORDER ---------- */
+function confirmOrder(){
+    if(orderData.length===0){
+        alert("No order placed!");
+        return;
+    }
+    alert("✅ Your order is confirmed!");
+    orderData=[];
+    displayOrder();
+}
+</script>
+
+</body>
+</html>
